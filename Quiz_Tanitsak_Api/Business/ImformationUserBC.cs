@@ -1,4 +1,5 @@
-﻿using Quiz_Tanitsak_Api.Interface;
+﻿using Quiz_Tanit_API.Models.Entity;
+using Quiz_Tanitsak_Api.Interface;
 using Quiz_Tanitsak_Api.Models.Entity;
 using System.Data.SqlClient;
 
@@ -27,6 +28,7 @@ namespace Quiz_Tanitsak_Api.Business
                 string sql = @"
                     SELECT a.UserId
                     ,FullName = CONCAT(a.Firstname,' ',a.LastName)
+                    ,a.Address
                     ,Birthday = FORMAT(a.Birthday,'dd/MM/yyyy')
                     ,Age =  CASE WHEN DATEDIFF(year, datediff (year, a.Birthday, getdate()), a.Birthday) > getdate()
                                 THEN DATEDIFF(year, a.Birthday, getdate()) - 1
@@ -54,6 +56,22 @@ namespace Quiz_Tanitsak_Api.Business
             {
                 throw ex;
             }
+            return model;
+        }
+
+        UpdateImformationUserViewModel IImformationUser.UpdateImformationUserViewBC(UpdateImformationUserViewReq req)
+        {
+            UpdateImformationUserViewModel model = new UpdateImformationUserViewModel();
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
             return model;
         }
     }

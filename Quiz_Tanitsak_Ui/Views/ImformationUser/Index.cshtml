@@ -1,0 +1,276 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@using System.Configuration
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "ImformationUser";
+
+    IConfiguration conf = (new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json").Build());
+    string url_api = conf["AppSettings:URL_API"].ToString();
+}
+<style type="text/css">
+    .set_margin_button {
+        padding: 10px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+
+    .swal2-title {
+        font-size: 14px !important;
+    }
+
+    table > thead > tr {
+        text-align: center !important;
+    }
+</style>
+<div class="container">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6" style="margin-top:10px;">
+                <h3 class="m-0">ข้อมูลผู้ใช้งาน</h3>
+            </div><!-- /.col -->
+            <div class="col-sm-6" style="margin-top:10px;">
+            </div><!-- /.col -->
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card" style="top:8px;">
+                    <div class="row">
+                        <div class="col-sm-12" style="display: flex; justify-content:flex-end">
+                            <div class="col-2 set_margin_button">
+                                <button type="button" data-toggle="modal" onclick="btnAdd('add',0);" data-target="#modal-xl" class="btn btn-outline-primary btn-block">ADD</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div id="dvViewTableConfig" style="width: 100%; overflow-x:auto;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="modal-xl" data-backdrop="static" data-keyboard="false" style="overflow: unset !important;">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"><span id="spTitle"></span>ข้อมูลผู้ใช้งาน</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row" id="moBodyImformation">
+                    <form id="checkvalid">
+                        <div class="form-group row">
+                            <label for="inpUserName" class="col-sm-2 col-form-label">ชื่อ - สกุล</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" id="inpFirstName" name="inpFirstName" placeholder="ชื่อ" autocomplete="off" required>
+                            </div>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" id="inpLastName" name="inpLastName" placeholder="สกุล" autocomplete="off" required>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="inpBirthday" class="col-sm-2 col-form-label">วันเกิด</label>
+                            <div class="col-sm-10">
+                                <input type="date" class="form-control" id="inpBirthday" name="inpBirthday" placeholder="วันเกิด" autocomplete="off" required>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="inpAge" class="col-sm-2 col-form-label">อายุ</label>
+                            <div class="col-sm-10" style="top: 5px;">
+                                <span id="spCalculatorAge">N/A</span> <span> ปี</span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="inpAddress" class="col-sm-2 col-form-label">ที่อยู่</label>
+                            <div class="col-sm-10">
+                                <textarea type="text" class="form-control" id="inpAddress" name="inpAddress" placeholder="ที่อยู่" autocomplete="off" required></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer display: flex; justify-content:flex-end">
+                <button type="button" id="onSave" onclick="btnSave();" class="btn btn-primary">บันทึก</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">ยกเลิก</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+@section Scripts {
+    <script type="text/javascript">
+        var url = `@url_api`;
+        $(function () {
+            $.validator.setDefaults({
+                errorClass: "validation-modal-firstVisiter"
+            });
+
+            funTbViewImformationUser();
+        })
+
+        function funTbViewImformationUser() {
+            $("#dvViewTableConfig").empty();
+            var html = `
+                            <div class="col-12">
+                                <div class="card-body">
+                                    <table id="tableConfigRoleOnSystem" class="table table-bordered table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>id</th>
+                                                <th>ชื่อ-สกุล</th>
+                                                <th>ที่อยู่</th>
+                                                <th>วันเกิด</th>
+                                                <th>อายุ</th>
+                                                <th>action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbodyImformation">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+            `;
+
+            $("#dvViewTableConfig").html(html);
+
+            var _url = url + 'ImformationUser/GetImformationUserView';
+            var res = GetSubmitAjax(_url);
+            $("#tbodyImformation").empty();
+            var htmltbody = ``;
+            if (res.status == "success") {
+                var obj = res.getImformationUserViewResps;
+                for (var i = 0; i < obj.length; i++) {
+
+                    htmltbody += `
+                                <tr id="${obj[i].userId}">
+                                    <td style="font-size: 14px !important; vertical-align: middle; padding: 5px !important; text-align: center;">${(i + 1)}</td>
+                                    <td style="font-size: 14px !important; vertical-align: middle; padding: 5px !important; text-align: left;">${obj[i].fullName}</td>
+                                    <td style="font-size: 14px !important; vertical-align: middle; padding: 5px !important; text-align: left;">${obj[i].address}</td>
+                                    <td style="font-size: 14px !important; vertical-align: middle; padding: 5px !important; text-align: center;">${obj[i].birthday}</td>
+                                    <td style="font-size: 14px !important; vertical-align: middle; padding: 5px !important; text-align: center;">${obj[i].age}</td>
+                                    <td style="font-size: 14px !important; vertical-align: middle; padding: 5px !important; text-align: center;"><button type="button" data-toggle="modal" onclick="btnAdd('edit',${obj[i].userId});" data-target="#modal-xl"  class="btn btn-outline-primary btn-block">View</button></td>
+                                </tr>
+                    `;
+                }
+                $("#tbodyImformation").html(htmltbody);
+                $(function () {
+                    $('#tableConfigRoleOnSystem').DataTable({
+                        "paging": true,
+                        "lengthChange": false,
+                        "searching": true,
+                        "ordering": true,
+                        "info": true,
+                        "autoWidth": true,
+                        "responsive": true,
+                    });
+                });
+            }
+        }
+
+        function btnAdd(param,id) {
+            if (param == "add")
+                $("#spTitle").text("เพิ่ม");
+            else
+                $("#spTitle").text("แก้ไข");
+
+            $('#modal-xl').on('hidden.bs.modal', function (e) {
+                $(this)
+                    .find("input,textarea,select,span")
+                    .val('')
+                    .end()
+                    .find("input[type=checkbox], input[type=radio]")
+                    .prop("checked", "")
+                    .end();
+            })
+
+            $("#inpFirstName").on("input", function (e) {
+                $(this).val(function (i, v) {
+                    return v.replace(/[^a-z\u0E00-\u0E7F ]/gi, "");
+                });
+            });
+
+            $("#inpLastName").on("input", function (e) {
+                $(this).val(function (i, v) {
+                    return v.replace(/[^a-z\u0E00-\u0E7F ]/gi, "");
+                });
+            });
+
+            $('#inpBirthday').change(function () {
+                var date = $(this).val();
+                var dob = new Date(date);
+                var today = new Date();
+                var age = Math.floor((today - dob) / (365.25 * 24 * 60 * 60 * 1000));
+                $('#spCalculatorAge').html(age);
+            });
+
+            if (param == "edit") {
+                $("#onSave").hide();
+                $(`table > tbody#tbodyImformation > tr#${id}`).each(function () {
+                    var ch = $(this).children();
+                    var fullName = ch.eq(1).text();
+                    var address = ch.eq(2).text();
+                    var birthday = ch.eq(3).text();
+                    var age = ch.eq(4).text();
+                    var firstName = fullName.split(" ")[0];
+                    var lastName = fullName.split(" ")[1];
+                    $("#inpFirstName").val(firstName);
+                    $("#inpLastName").val(lastName);
+                    $("#inpBirthday").val(`${birthday.split("/")[2]}-${birthday.split("/")[1]}-${birthday.split("/")[0]}`);
+                    $("#spCalculatorAge").text(age);
+                    $("#inpLastName").val(lastName);
+                    $("#inpAddress").val(address);
+
+                    // $(`select#${idTagSelectRole}`).val(idTr.split("_")[1]).change();
+
+                    // $(`select#${idTagSelectRole}`).on('change', function (e) {
+                    //     var optionSelected = $("option:selected", this);
+                    //     var valueSelected = this.value;
+
+                    // var objStep = { empCode: idTr.split("_")[0], roleId: valueSelected };
+                    // if (arrObjTransactionChange.find(x => x.empCode == idTr.split("_")[0]) == undefined) {
+                    //     arrObjTransactionChange.push(objStep)
+                    // } else {
+                    //     var changeRoleReplace = arrObjTransactionChange.find(x => x.empCode)
+                    //     changeRoleReplace.roleId = valueSelected;
+                    // }
+                    // });
+                })
+            }
+            else {
+                $("#onSave").show();
+            }
+            // $("#moBodyImformation").empty();
+
+        }
+
+        function btnSave() {
+            $('#checkvalid').validate();
+            var isflag = false;
+            if ($('#inpFirstName').valid()) {
+                isflag = true;
+            } else if ($('#inpLastName').valid()) {
+                isflag = true;
+            } else if ($('#inpBirthday').valid()) {
+                isflag = true;
+            } else if ($('#inpAddress').valid()) {
+                isflag = true;
+            } else {
+                isflag = false;
+            }
+
+            if (isflag) {
+                alert(3);
+            }
+        }
+   
+    </script>
+}
