@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Quiz_Tanitsak_Api.Models.Database;
+namespace Quiz_Tanit_API.Models.Database;
 
 public partial class TbMimformationUser
 {
@@ -13,7 +13,7 @@ public partial class TbMimformationUser
 
     public DateTime? Birthday { get; set; }
 
-    public DateTime? Address { get; set; }
+    public string? Address { get; set; }
 
     public string? Description { get; set; }
 

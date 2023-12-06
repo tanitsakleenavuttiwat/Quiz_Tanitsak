@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
-namespace Quiz_Tanitsak_Api.Models.Database;
+namespace Quiz_Tanit_API.Models.Database;
 
 public partial class DBQuizTanitsakContext : DbContext
 {
@@ -29,7 +29,7 @@ public partial class DBQuizTanitsakContext : DbContext
 
             entity.ToTable("TbMImformationUser");
 
-            entity.Property(e => e.Address).HasColumnType("datetime");
+            entity.Property(e => e.Address).HasMaxLength(500);
             entity.Property(e => e.Birthday).HasColumnType("datetime");
             entity.Property(e => e.CreateDate).HasColumnType("datetime");
             entity.Property(e => e.Description).HasMaxLength(500);

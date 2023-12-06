@@ -10,5 +10,6 @@
         public static string UPLOAD_COMPLETED = "upload completed";
         public static string DELETE_DATA_COMPLETE = "delete data completed";
         public static string UPDATE_DATA_COMPLETE = "update data completed";
+        public static string DETECH_DATA = "กรุณาตรวจสอบการบันทึกอีกครั้ง เนื่องจากพบชืื่อ-สกุล ซ้ำในระบบ!!";
     }
 }

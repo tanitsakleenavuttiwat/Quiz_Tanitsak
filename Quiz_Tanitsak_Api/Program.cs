@@ -6,9 +6,9 @@ using Quiz_Tanitsak_Api;
 using Quiz_Tanitsak_Api.Business;
 using Quiz_Tanitsak_Api.Helper;
 using Quiz_Tanitsak_Api.Interface;
-using Quiz_Tanitsak_Api.Models.Database;
 using Quiz_Tanitsak_Api.Models.Entity;
 using System.Reflection;
+using Quiz_Tanit_API.Models.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 
